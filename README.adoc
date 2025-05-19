@@ -1,0 +1,24 @@
+Feladat leírás
+
+A pom.xml-be az alábbi 2 függősség került be:
+- RestAssured: json-schema-validator - ez szükséges a JSON response validáláshoz
+- Assertj: assertj-core - ez szükséges a response-ban lévő adatok validálásához
+
+#Talált hibák leírása
+
+- POST /pet végpont válaszideje 500 millisecond felett van
+
+- GET /pet/findByStatus végpont esetén elég egy query paraméter ami a státusz.
+Azonban ha a csak egy string kerül átadásra mint query paraméter akkor a logolás miatt elszáll a végpont hívás.
+A hiba szerintem itt lehet: requestSpec.getQueryParams()
+A sikeres végpont hívás miatt map strukturában kerül megadásra a query paraméter.
+
+- GET /pet/findByStatus végpont hívásnál ha nem adok meg headers-t map formátumban akkor szinten a logolás miatt elszáll a hivás
+formatHeaders(requestSpec.getHeaders())
+
+- GET /pet/findByStatus végpont esetén ha invalid statust adok meg query paramként akkor 200 HTTP státusz kód jön vissza
+ami eltér a swagger -ben írtól. Igaz a response egy üres listát tartalmaz.
+
+- GET /pet/findByStatus végpont response ideje több mint 500 millisecond
+
+- POST /pet vegpontnál a category es a tags különböző DTO val szereplenek de ez eltér az implementációtól
