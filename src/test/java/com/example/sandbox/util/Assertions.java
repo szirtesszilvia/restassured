@@ -1,6 +1,5 @@
 package com.example.sandbox.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -93,52 +92,9 @@ public class Assertions {
         assertThat(actualPetName).as("Category name is different in request and response").isEqualTo(expectedPetName);
     }
 
-    /**
-     * Validate photoUrls in response
-     *
-     * @param responsePhotoUrls
-     *         List<String>
-     * @param requestPhotoUrls
-     *         List<String>
-     */
-    public static void validatePhotoUrls(List<String> responsePhotoUrls, List<String> requestPhotoUrls) {
-        assertThat(responsePhotoUrls).as("Tag names should have the same").isEqualTo(requestPhotoUrls);
-    }
-
-    /**
-     * Validate Tags.id in response
-     *
-     * @param responseTags
-     *         List<Item>
-     * @param requestTags
-     *         List<Item>
-     */
-    public static void validateTagsIds(ArrayList<Item> responseTags, List<Item> requestTags) {
-        List<Integer> responseIds = responseTags.stream().map(Item::getId).collect(Collectors.toList());
-        List<Integer> requestIds = requestTags.stream().map(Item::getId).collect(Collectors.toList());
-        assertThat(responseIds).as("Tag ids should have the same elements").hasSameSizeAs(requestIds);
-        assertThat(responseIds).as("Tag names should have the same").isEqualTo(requestIds);
-    }
-
     public static void validateAllStatuses(Response response, String expectedStatus, int expectedPetNumber){
         List<PetBody> actualStatuses = response.jsonPath().getList("pet");
         assertThat(actualStatuses.stream().filter(c -> c.getStatus().equals(expectedStatus)).collect(Collectors.toList())).hasSize(expectedPetNumber);
-
-    }
-
-    /**
-     * Validate Tags.Name in response
-     *
-     * @param responseTags
-     *         List<Item>
-     * @param requestTags
-     *         List<Item>
-     */
-    public static void validateTagsNames(ArrayList<Item> responseTags, List<Item> requestTags) {
-        List<String> responseTagNames = responseTags.stream().map(Item::getName).collect(Collectors.toList());
-        List<String> requestTagNames = requestTags.stream().map(Item::getName).collect(Collectors.toList());
-        assertThat(responseTagNames).as("Tag names should have the same elements").hasSameSizeAs(requestTagNames);
-        assertThat(responseTagNames).as("Tag names should have the same").isEqualTo(requestTagNames);
     }
 
     /**

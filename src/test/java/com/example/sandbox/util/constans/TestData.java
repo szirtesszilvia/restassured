@@ -12,6 +12,5 @@ public class TestData {
     public static final String APY_KEY_HEADER_KEY = "api_key";
     public static final String APY_KEY_HEADER_VALUE = "Api_key_header_value";
     public static final String STATUS_QUERY_PARAM = "status";
-    public static final String PET_ID_QUERY_PARAM = "petId";
 
 }

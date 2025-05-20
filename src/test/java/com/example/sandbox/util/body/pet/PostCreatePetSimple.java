@@ -16,17 +16,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 public class PostCreatePetSimple extends PostCreatePet{
 
-    public static PetBody postCreatePetSimple(int petId, String petName, Item category, String photoUrls, Item tags, String status){
-        return PetBody.builder()
-                .id(petId)
-                .name(petName)
-                .category(category)
-                .photoUrl(photoUrls)
-                .tag(tags)
-                .status(status)
-                .build();
-    }
-
     public static PetBody createPetBodyDto(int petId, String petName, Item category, String photoUrls, Item tags, String status){
         return PetBody.builder()
                 .id(petId)

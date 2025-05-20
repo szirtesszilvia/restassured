@@ -18,7 +18,6 @@ import com.example.sandbox.util.constans.TestData;
 import static com.example.sandbox.util.constans.TestData.HYDRAIMAGE;
 import com.example.sandbox.util.swagger.definitions.Item;
 import com.example.sandbox.util.swagger.definitions.PetBody;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.response.Response;
 import utils.report.TestListener;
 
@@ -26,7 +25,7 @@ import utils.report.TestListener;
 public class postNewPetTest extends Common {
 
     @Test(enabled = true, groups = {SMOKE}, description = "POSITIVE TEST - create a pet with all mandatory and valid data")
-    public void postPetTest_withValidData() throws JsonProcessingException {
+    public void postPetTest_withValidData() {
         //WHEN create petBody request
         Item category = PostCreatePetSimple.createItem(generateRandomNumber(), TestData.CAT_PET_CATEGORY);
         Item tag = PostCreatePetSimple.createItem(generateRandomNumber(), TestData.FOOD_DONUT_ID_TAG);
@@ -60,6 +59,22 @@ public class postNewPetTest extends Common {
         Assertions.validateJsonSchema(response);
         Assertions.validateStatus(response.jsonPath().get("status"), PetStatus.AVAILABLE.toString());
         Assertions.asserResponseTime(response);
+    }
+
+    @Test(enabled = true, groups = {SMOKE}, description = "NEGATIVE TEST - without pet name")
+    public void postPetTest_withoutPetName() {
+        Item category = PostCreatePetSimple.createItem(generateRandomNumber(), TestData.CAT_PET_CATEGORY);
+        Item tag = PostCreatePetSimple.createItem(generateRandomNumber(), TestData.CHARMS_SMALL_DAISY_TAG);
+        PetBody petBody = PostCreatePetSimple.createPetBodyDto(generateRandomNumber(), null, category, HYDRAIMAGE, tag, PetStatus.AVAILABLE.toString());
+
+        PostCreatePet body = PostCreatePet.builder()
+                .PetBody(petBody
+                ).build();
+
+        Response response = postUrl(newPet, createJsonBody(body));
+
+        Assertions.assertReturnCode(response, HttpStatus.SC_OK);
+        Assertions.validateJsonSchema(response);
     }
 
 }

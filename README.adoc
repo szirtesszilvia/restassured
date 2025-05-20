@@ -22,3 +22,6 @@ ami eltér a swagger -ben írtól. Igaz a response egy üres listát tartalmaz.
 - GET /pet/findByStatus végpont response ideje több mint 500 millisecond
 
 - POST /pet vegpontnál a category es a tags különböző DTO val szereplenek de ez eltér az implementációtól
+
+- POST /pet/{petId} vegpont hívás sikertelen mert nem megfelelo a response content-type-ja
+ResponseSpecBuilder().expectContentType()

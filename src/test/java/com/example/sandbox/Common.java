@@ -33,37 +33,6 @@ public class Common extends Endpoints {
 
     }
 
-    public Response getPetByStatus(String endpoint){
-
-
-        return given()
-                .relaxedHTTPSValidation()
-                .and()
-                .filter(filter)
-                .when()
-                .get(baseUrl+endpoint)
-                .then()
-                .extract().response();
-
-    }
-    public Response getPetByStatus(String endpoint, Map<String, String> queryParam ){
-
-
-        return given()
-                .relaxedHTTPSValidation()
-                .headers("correlationId","testCorrelid")
-                .cookie("session_id", "abc123")
-                .param("param","testParam")
-                .formParam("asd","testFormParams")
-                .queryParams(queryParam)
-                .and()
-                .filter(filter)
-                .when()
-                .get(baseUrl+endpoint)
-                .then()
-                .extract().response();
-
-    }
     public Response getPetByStatus(String endpoint,Map<String, String> headers,Map<String, String> queryParam ){
 
 
@@ -100,7 +69,7 @@ public class Common extends Endpoints {
         return given()
                 .relaxedHTTPSValidation()
                 .contentType("application/json")
-                .accept("application/xml")
+                .accept("application/json")
                 .pathParam("petId", petId)
                 .queryParams(queryParams)
                 .and()
