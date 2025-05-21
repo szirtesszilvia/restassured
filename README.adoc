@@ -25,3 +25,22 @@ ami eltér a swagger -ben írtól. Igaz a response egy üres listát tartalmaz.
 
 - POST /pet/{petId} vegpont hívás sikertelen mert nem megfelelo a response content-type-ja
 ResponseSpecBuilder().expectContentType()
+
+#A felsorolt hibák közül kiválasztok egyet amit részletesen kifejtek úgymint egy JIRA jegyben
+
+- Bug summary: POST /pet végpont válaszideje 500 millisecond felett van
+
+- Bug description: Az alábbi teszt lépséssekkel reprodukálható a hiba
+Hívd meg a POST /pet végpontot az alábbi teszt adatokkal:
+id: 1-100 közötti szám
+name: Cicuskam
+category: CAT
+photoUrls: https://gods-and-demons.fandom.com/wiki/Lernaean_Hydra?file=Venture_the_fog_hydra_by_darkcloud013_dbpdkjn-fullview.jpg
+tags: FOOD DONUT ID TAG
+status: pending
+
+- Aktuális eredmény: A végpont hívás sikeres, de a válaszidő 765 millisecond
+
+- Elvárt eredmény: A végpont válaszideje 500 millisecond alatt van
+
+- Tesz tkörnyezet: Dev

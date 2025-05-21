@@ -6,6 +6,7 @@ import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
@@ -22,7 +23,6 @@ import static com.example.sandbox.util.constans.TestData.HYDRAIMAGE;
 import com.example.sandbox.util.swagger.definitions.Item;
 import com.example.sandbox.util.swagger.definitions.PetBody;
 import com.example.sandbox.util.test.helper.TestHelper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.response.Response;
 import utils.report.ReportingFilter;
 import utils.report.TestListener;
@@ -32,6 +32,8 @@ import utils.report.TestListener;
 public class PetLifeCycle extends Common {
 
     private static final Logger consoleLogger = LogManager.getLogger(ReportingFilter.class);
+    private PostCreatePetSimple postCreatePetSimple;
+    private int petId;
 
     @BeforeClass
     public void loggingClassNameBeforeClass() {
@@ -39,56 +41,66 @@ public class PetLifeCycle extends Common {
         consoleLogger.info("The current class name is: " + className);
     }
 
-    @Test(enabled = true, groups = {SMOKE}, description = "Business flow testing: creating, modifying and deleting")
-    public void BusinessFlowTest() throws JsonProcessingException {
+    @BeforeMethod
+    public void setUp() {
+        this.postCreatePetSimple = PostCreatePetSimple.builder().build();
+    }
 
-        int petId = generateRandomNumber();
+    @Test(enabled = true, groups = {SMOKE}, description = "Business flow testing: creating, modifying and deleting", priority = 1)
+    public void businessFlowWithCreationTest() {
+        // Call POST /pet endpoint
+        petId = generateRandomNumber();
+        Item dogCategory = postCreatePetSimple.createItem(generateRandomNumber(), TestData.DOG_PET_CATEGORY);
+        Item foodDonutTag = postCreatePetSimple.createItem(generateRandomNumber(), TestData.FOOD_DONUT_ID_TAG);
 
-        Item category = PostCreatePetSimple.createItem(generateRandomNumber(), TestData.DOG_PET_CATEGORY);
-        Item tag = PostCreatePetSimple.createItem(generateRandomNumber(), TestData.FOOD_DONUT_ID_TAG);
-        PetBody petBody = PostCreatePetSimple.createPetBodyDto(petId, TestData.DOG_NAME, category, HYDRAIMAGE, tag, PetStatus.PENDING.toString());
-
+        PetBody petBody = postCreatePetSimple.createPetBodyDto(petId, TestData.DOG_NAME, dogCategory, HYDRAIMAGE, foodDonutTag, PetStatus.PENDING.toString());
         PostCreatePet body = PostCreatePet.builder().PetBody(petBody).build();
 
-        Response response = postUrl(newPet, createJsonBody(body));
-        validateResponse(response, petBody);
+        Response postPetResponse = postUrl(newPet, createJsonBody(body));
+        validateCreatePetResponse(postPetResponse, petBody);
+    }
 
-        // Create new petBody request and call PUT /pet endpoint
-        Item catCategory = PostCreatePetSimple.createItem(generateRandomNumber(), TestData.CAT_PET_CATEGORY);
-        PetBody modifiedPetBody = PostCreatePetSimple.createPetBodyDto(petId, TestData.CAT_NAME, catCategory, HYDRAIMAGE, null, null);
+    @Test(enabled = true, groups = {SMOKE}, description = "Business flow testing: creating, modifying and deleting", priority = 2, dependsOnMethods = {"businessFlowWithCreationTest"})
+    public void businessFlowWithModificationTest() {
+        // Call POST /pet endpoint
+        Item catCategory = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CAT_PET_CATEGORY);
+        Item charmsSmallDaisyTag = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CHARMS_SMALL_DAISY_TAG);
 
+        PetBody modifiedPetBody = postCreatePetSimple.createPetBodyDto(petId, TestData.CAT_NAME, catCategory, HYDRAIMAGE, charmsSmallDaisyTag, PetStatus.SOLD.toString());
         Response modifiedResponse = modifyPetData(modifiedPetBody);
-        Assertions.assertReturnCode(modifiedResponse, HttpStatus.SC_OK);
+        String petIdFromResponse = modifiedResponse.jsonPath().get("id").toString();
+        Assertions.validateReturnCode(modifiedResponse, HttpStatus.SC_OK);
+        Assertions.validateJsonSchema(modifiedResponse);
+
+        Response getPetByPetIdResponse = getPetByPetId(petById, petIdFromResponse);
+        Assertions.validateReturnCode(getPetByPetIdResponse, HttpStatus.SC_OK);
+    }
+
+    @Test(enabled = true, groups = {SMOKE}, description = "Business flow testing: creating, modifying and deleting", priority = 3, dependsOnMethods = {"businessFlowWithCreationTest", "businessFlowWithModificationTest"})
+    public void businessFlowWithDeletionTest() {
+        // Call POST /pet endpoint
+        Response deleteResponse = deletePetByPetId(petById, Map.of(TestData.APY_KEY_HEADER_KEY, TestData.APY_KEY_HEADER_VALUE), petId);
+        Assertions.validateReturnCode(deleteResponse, HttpStatus.SC_OK);
 
         Response getPetByPetIdResponse = getPetByPetId(petById, String.valueOf(petId));
-        Assertions.assertReturnCode(getPetByPetIdResponse, HttpStatus.SC_OK);
-        //     Assertions.assertResponseBasedOnRequest(getPetByPetIdResponse, modifiedPetBody);
-
-        // DELETE pet
-        Response deleteResponse = deletePetByPetId(deletePetById, Map.of(TestData.APY_KEY_HEADER_KEY, TestData.APY_KEY_HEADER_VALUE), petId);
-        Assertions.assertReturnCode(deleteResponse, HttpStatus.SC_OK);
-
-        getPetByPetIdResponse = getPetByPetId(petById, String.valueOf(petId));
-        Assertions.assertReturnCode(getPetByPetIdResponse, HttpStatus.SC_NOT_FOUND);
-
+        Assertions.validateReturnCode(getPetByPetIdResponse, HttpStatus.SC_NOT_FOUND);
     }
 
-    @Test(enabled = true, groups = {SMOKE}, description = "Business flow testing: call POST /pet/{petId}")
-    public void BusinessFlowTest_withPet() throws JsonProcessingException {
+    @Test(enabled = true, groups = {SMOKE}, description = "Business flow testing: call POST /pet/{petId}", priority = 4)
+    public void businessFlowTest_withPetByPetIdEndpoint() {
+        int newPetId = generateRandomNumber();
         Map<String, String> queryMap = Map.of("name", "PET NAME", "status", "pending");
 
-        postPetWithPetId(petById, generateRandomNumber(), queryMap);
-    }
+        Response response = postPetWithPetId(petById, newPetId, queryMap);
+        Assertions.validateReturnCode(response, HttpStatus.SC_OK);
 
-    private void validateResponse(Response response, PetBody petBody) throws JsonProcessingException {
-        Assertions.assertReturnCode(response, HttpStatus.SC_OK);
-        Assertions.validatePetId(response.jsonPath().getInt("id"), petBody.getId());
+        // Create new petBody request and call PUT /pet endpoint
+        Item catCategory = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CAT_PET_CATEGORY);
+        PetBody modifiedPetBody = postCreatePetSimple.createPetBodyDto(newPetId, TestData.CAT_NAME, catCategory, HYDRAIMAGE, null, null);
+        modifyPetDataWithValidation(modifiedPetBody);
 
-        Item categoryItem = TestHelper.convertCategoryMapToItem(response);
-        Assertions.validateCategory(categoryItem, petBody.getCategory());
-
-        Assertions.validatePetName(response.jsonPath().get("name"), petBody.getName());
-        Assertions.validateStatus(response.jsonPath().get("status"), petBody.getStatus());
+        // DELETE pet
+        deletePetWithValidation(newPetId);
     }
 
     private Response modifyPetData(PetBody petBody) {
@@ -98,4 +110,33 @@ public class PetLifeCycle extends Common {
         Response response = putPet(putPet, createJsonBody(body));
         return response;
     }
+
+    private void validateCreatePetResponse(Response response, PetBody petBody) {
+        Assertions.validateReturnCode(response, HttpStatus.SC_OK);
+        Assertions.validatePetId(response.jsonPath().getInt("id"), petBody.getId());
+
+        Item categoryItem = TestHelper.convertCategoryMapToItem(response);
+        Assertions.validateCategory(categoryItem, petBody.getCategory());
+
+        Assertions.validatePetName(response.jsonPath().get("name"), petBody.getName());
+        Assertions.validateStatus(response.jsonPath().get("status"), petBody.getStatus());
+    }
+
+    private void modifyPetDataWithValidation(PetBody modifiedPetBody) {
+        Response modifiedResponse = modifyPetData(modifiedPetBody);
+        String petId = modifiedResponse.jsonPath().get("id").toString();
+        Assertions.validateReturnCode(modifiedResponse, HttpStatus.SC_OK);
+
+        Response getPetByPetIdResponse = getPetByPetId(petById, petId);
+        Assertions.validateReturnCode(getPetByPetIdResponse, HttpStatus.SC_OK);
+    }
+
+    private void deletePetWithValidation(int petId) {
+        Response deleteResponse = deletePetByPetId(petById, Map.of(TestData.APY_KEY_HEADER_KEY, TestData.APY_KEY_HEADER_VALUE), petId);
+        Assertions.validateReturnCode(deleteResponse, HttpStatus.SC_OK);
+
+        Response getPetByPetIdResponse = getPetByPetId(petById, String.valueOf(petId));
+        Assertions.validateReturnCode(getPetByPetIdResponse, HttpStatus.SC_NOT_FOUND);
+    }
+
 }

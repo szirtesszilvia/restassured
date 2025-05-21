@@ -2,9 +2,6 @@ package com.example.sandbox.util.body.pet;
 
 import java.util.List;
 
-import static com.example.sandbox.util.Tools.generateRandomNumber;
-import com.example.sandbox.util.constans.PetStatus;
-import static com.example.sandbox.util.constans.TestData.HYDRAIMAGE;
 import com.example.sandbox.util.swagger.definitions.Item;
 import com.example.sandbox.util.swagger.definitions.PetBody;
 import lombok.Getter;
@@ -14,9 +11,16 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Getter
 @Setter
-public class PostCreatePetSimple extends PostCreatePet{
+public class PostCreatePetSimple extends PostCreatePet {
 
-    public static PetBody createPetBodyDto(int petId, String petName, Item category, String photoUrls, Item tags, String status){
+    public PostCreatePet createPostCreatePet(PetBody petBody){
+        PostCreatePet body = PostCreatePet.builder()
+                .PetBody(petBody
+                ).build();
+        return body;
+    }
+
+    public PetBody createPetBodyDto(int petId, String petName, Item category, String photoUrls, Item tags, String status){
         return PetBody.builder()
                 .id(petId)
                 .name(petName)
@@ -27,7 +31,7 @@ public class PostCreatePetSimple extends PostCreatePet{
                 .build();
     }
 
-    public static PetBody createPetBodyDto(int petId, String petName, Item category, List<String> photoUrls, List<Item> tags, String status){
+    public PetBody createPetBodyDto(int petId, String petName, Item category, List<String> photoUrls, List<Item> tags, String status){
         return PetBody.builder()
                 .id(petId)
                 .name(petName)
@@ -38,13 +42,11 @@ public class PostCreatePetSimple extends PostCreatePet{
                 .build();
     }
 
-    public static Item createItem(int petId, String petName){
+    public Item createItem(int petId, String petName){
         return Item.builder()
                 .id(petId)
                 .name(petName)
                 .build();
     }
-
-
 
 }

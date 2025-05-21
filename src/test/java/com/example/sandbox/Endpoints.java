@@ -10,7 +10,6 @@ public class Endpoints {
     public static final String newPet = "/pet";
     public static final String petById = "/pet/{petId}";
     public static final String putPet = "/pet";
-    public static final String deletePetById = "/pet/{petId}";
 
     //-------------------------store-------------------------
     public static final String order = "/store/order";

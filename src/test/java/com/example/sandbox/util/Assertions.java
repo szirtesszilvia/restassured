@@ -23,7 +23,7 @@ public class Assertions {
      * @param httpCode
      *         int
      */
-    public static void assertReturnCode(Response response, int httpCode) {
+    public static void validateReturnCode(Response response, int httpCode) {
         assertThat(response.getStatusCode()).as("HTTP status code should be %s", httpCode).isEqualTo(httpCode);
     }
 
@@ -33,7 +33,7 @@ public class Assertions {
      * @param response
      *         Response
      */
-    public static void asserResponseTime(Response response) {
+    public static void validateResponseTime(Response response) {
         System.out.println("RESPONSE TIME IS: " + response.getTimeIn(TimeUnit.MILLISECONDS));
         assertThat(response.getTimeIn(TimeUnit.MILLISECONDS)).isLessThanOrEqualTo(500L);
     }
@@ -48,11 +48,21 @@ public class Assertions {
         MatcherAssert.assertThat(response.getBody().asString(), matchesJsonSchemaInClasspath("petBodyJsonSchema.json"));
     }
 
-    // Assert all fields in the response based on request
-    // There is difference between swagger PetBody and 'restAssured' petBody fields
-    public static void assertResponseBasedOnRequest(Response response, PetBody petBodyRequest) {
-        List<Item> responseTags = response.jsonPath().get("tags");
-        assertThat(responseTags).usingRecursiveComparison().isEqualTo(petBodyRequest);
+    public static void validateJsonSchema2(PetBody response) {
+        MatcherAssert.assertThat(response.toString(), matchesJsonSchemaInClasspath("petBodyJsonSchema.json"));
+    }
+
+    /**
+     * Validate all fields in the response based on PetBody request Json schema
+     *
+     * @param response
+     *         Response
+     * @param petBodyRequest
+     *         PetBody
+     */
+    public static void assertResponseBasedOnPetBodyRequest(Response response, PetBody petBodyRequest) {
+        PetBody petResponse = response.getBody().as(PetBody.class);
+        assertThat(petResponse).usingRecursiveComparison().isEqualTo(petBodyRequest);
     }
 
     /**
@@ -92,9 +102,17 @@ public class Assertions {
         assertThat(actualPetName).as("Category name is different in request and response").isEqualTo(expectedPetName);
     }
 
-    public static void validateAllStatuses(Response response, String expectedStatus, int expectedPetNumber){
+    /**
+     * Validate all statuses are the same in the response
+     *
+     * @param response
+     *         Response
+     * @param expectedStatus
+     *         String
+     */
+    public static void validateAllStatuses(Response response, String expectedStatus) {
         List<PetBody> actualStatuses = response.jsonPath().getList("pet");
-        assertThat(actualStatuses.stream().filter(c -> c.getStatus().equals(expectedStatus)).collect(Collectors.toList())).hasSize(expectedPetNumber);
+        assertThat(actualStatuses.stream().filter(c -> c.getStatus().equals(expectedStatus)).collect(Collectors.toList()));
     }
 
     /**

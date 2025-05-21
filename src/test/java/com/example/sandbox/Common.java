@@ -68,13 +68,14 @@ public class Common extends Endpoints {
     public Response postPetWithPetId(String endpoint, int petId, Map<String, String> queryParams){
         return given()
                 .relaxedHTTPSValidation()
-                .contentType("application/json")
-                .accept("application/json")
+                .contentType("*/*")
+                .accept("*/*")
                 .pathParam("petId", petId)
                 .queryParams(queryParams)
                 .and()
                 .filter(filter)
                 .when()
+                .contentType("*/*")
                 .post(baseUrl+endpoint)
                 .then()
                 .extract().response();
