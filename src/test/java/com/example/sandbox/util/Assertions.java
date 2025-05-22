@@ -62,7 +62,7 @@ public class Assertions {
      */
     public static void assertResponseBasedOnPetBodyRequest(Response response, PetBody petBodyRequest) {
         PetBody petResponse = response.getBody().as(PetBody.class);
-        assertThat(petResponse).usingRecursiveComparison().isEqualTo(petBodyRequest);
+        assertThat(petResponse).isEqualTo(petBodyRequest);
     }
 
     /**

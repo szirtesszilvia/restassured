@@ -13,14 +13,17 @@ import lombok.experimental.SuperBuilder;
 @Setter
 public class PostCreatePetSimple extends PostCreatePet {
 
-    public PostCreatePet createPostCreatePet(PetBody petBody){
+    private PetBody petbody;
+    private Item item;
+
+    public PostCreatePet createPostCreatePet(PetBody petBody) {
         PostCreatePet body = PostCreatePet.builder()
                 .PetBody(petBody
                 ).build();
         return body;
     }
 
-    public PetBody createPetBodyDto(int petId, String petName, Item category, String photoUrls, Item tags, String status){
+    public PetBody createPetBodyDto(int petId, String petName, Item category, String photoUrls, Item tags, String status) {
         return PetBody.builder()
                 .id(petId)
                 .name(petName)
@@ -31,7 +34,7 @@ public class PostCreatePetSimple extends PostCreatePet {
                 .build();
     }
 
-    public PetBody createPetBodyDto(int petId, String petName, Item category, List<String> photoUrls, List<Item> tags, String status){
+    public PetBody createPetBodyDto(int petId, String petName, Item category, List<String> photoUrls, List<Item> tags, String status) {
         return PetBody.builder()
                 .id(petId)
                 .name(petName)
@@ -42,7 +45,7 @@ public class PostCreatePetSimple extends PostCreatePet {
                 .build();
     }
 
-    public Item createItem(int petId, String petName){
+    public Item createItem(int petId, String petName) {
         return Item.builder()
                 .id(petId)
                 .name(petName)

@@ -38,17 +38,16 @@ public class PostNewPetTest extends Common {
         Item category = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CAT_PET_CATEGORY);
         Item tag = postCreatePetSimple.createItem(generateRandomNumber(), TestData.FOOD_DONUT_ID_TAG);
         Item secondTag = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CHARMS_SMALL_DAISY_TAG);
+
         PetBody petBody = postCreatePetSimple.createPetBodyDto(generateRandomNumber(), TestData.CAT_NAME, category, List.of(HYDRAIMAGE), List.of(tag, secondTag), PetStatus.SOLD.toString());
+        postCreatePetSimple.setPetbody(petBody);
 
-
-        PostCreatePet body = PostCreatePet.builder()
-                .PetBody(petBody
-                ).build();
+        PostCreatePet body = postCreatePetSimple.createPostCreatePet(postCreatePetSimple.getPetbody());
 
         Response response = postUrl(newPet, createJsonBody(body));
 
         Assertions.validateReturnCode(response, HttpStatus.SC_OK);
-        Assertions.assertResponseBasedOnPetBodyRequest(response,petBody);
+        Assertions.assertResponseBasedOnPetBodyRequest(response, petBody);
         Assertions.validateJsonSchema(response);
         Assertions.validateStatus(response.jsonPath().get("status"), PetStatus.SOLD.toString());
     }
@@ -58,8 +57,9 @@ public class PostNewPetTest extends Common {
         Item category = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CAT_PET_CATEGORY);
         Item tag = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CHARMS_SMALL_DAISY_TAG);
         PetBody petBody = postCreatePetSimple.createPetBodyDto(generateRandomNumber(), TestData.CAT_NAME, category, HYDRAIMAGE, tag, PetStatus.AVAILABLE.toString());
+        postCreatePetSimple.setPetbody(petBody);
 
-        PostCreatePet body = postCreatePetSimple.createPostCreatePet(petBody);
+        PostCreatePet body = postCreatePetSimple.createPostCreatePet(postCreatePetSimple.getPetbody());
 
         Response response = postUrl(newPet, createJsonBody(body));
         PetBody petBodyFromResponse = response.getBody().as(PetBody.class);
@@ -75,10 +75,9 @@ public class PostNewPetTest extends Common {
         Item category = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CAT_PET_CATEGORY);
         Item tag = postCreatePetSimple.createItem(generateRandomNumber(), TestData.CHARMS_SMALL_DAISY_TAG);
         PetBody petBody = postCreatePetSimple.createPetBodyDto(generateRandomNumber(), null, category, HYDRAIMAGE, tag, PetStatus.AVAILABLE.toString());
+        postCreatePetSimple.setPetbody(petBody);
 
-        PostCreatePet body = PostCreatePet.builder()
-                .PetBody(petBody
-                ).build();
+        PostCreatePet body = postCreatePetSimple.createPostCreatePet(postCreatePetSimple.getPetbody());
 
         Response response = postUrl(newPet, createJsonBody(body));
 
